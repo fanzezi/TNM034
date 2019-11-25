@@ -15,41 +15,31 @@
 % detektera ansiktet
 % normalisera ansiktet
 
-% White lighting compensation
+image = imread('DB1/db1_01.jpg');
 
+% Color Correlation with Gray World compensation
+image = colorCorr(image);
 
-image = imread('DB0/db0_4.jpg');
+%EyeMap, EyemapC and EyeMapL
+%Creating EyemapC & EyeMapL
+
+%Get image to YCbCr
 YCbCr = rgb2ycbcr(image);
-%a = uint8(zeros(size(YCbCr)));
 YCbCr = im2double(YCbCr);
 
 Y = YCbCr(:,:,1); 
 Cb = YCbCr(:,:,2);
 Cr = YCbCr(:,:,3);
 
-%16 - 240
+%EyeMapC
 g = 1./3;
 ccb = Cb.^2;
 ccr = (1 - Cr).^2;
 cbcr = Cb./Cr;
 
-
-%Inte klar
-
-%just_cb = cat(3,a,Cb,a);
-%just_cr = cat(3,a,a,Cr);
 EyeMapC = g*(ccb + ccr + cbcr);
-%EyeMapC = ((Cb.^2) +((255-Cr).^2) + (Cb./Cr))/3;
-%EyeMapC = ((just_cb.^2) +((255-just_cr).^2) + (just_cb./just_cr))/3;
 
-%figure
-%imshow(EyeMapC)
-
-%EyeMapL = ...
-
-%igray = rgb2gray(image);
-%igray = ~igray;
-
+% EyeMapL
 %Structure Element
 SE = strel('disk',10);
 o = imdilate(Y, SE);
@@ -60,8 +50,8 @@ EyeMapL = o./p;
 %imshow(EyeMapL)
 
 EyeMap = EyeMapC.*EyeMapL;
-Dil = imdilate(EyeMap, SE);
+Eyemap = imdilate(EyeMap, SE);
 
-imshow(Dil)
-
+%imshow(EyeMap) 
+%------------------------
 
