@@ -15,22 +15,40 @@
 % detektera ansiktet
 % normalisera ansiktet
 
+%White ligthning compensation
+% 5% of the lightest pixels
+
 image = imread('db1_14.jpg');
-%image = imresize(image, [0, 255]);
-image = 255*image;
 YCbCr = rgb2ycbcr(image);
+YCbCr = im2double(YCbCr);
 
 Y = YCbCr(:,:,1); 
 Cb = YCbCr(:,:,2);
 Cr = YCbCr(:,:,3);
- 
-% a = uint8(zeros(536,414));
-% just_cb = cat(3,a,Cb,a);
-% just_cr = cat(3,a,a,Cr);
 
-EyeMapC = ((Cb.^2) +((255-Cr).^2) + (Cb./Cr))/3;
-%EyeMapC = ((just_cb.^2) +((255-just_cr).^2) + (just_cb./just_cr))/3;
-%EyeMapL = ...
+% Y= normalize(Y, 255);
+% Cb = normalize(Cb, 255);
+% Cr = normalize(Cr, 255);
 
-figure
-imshow(EyeMapC)
+EyeMapC = (1./3) *((Cb.^2) +((1-Cr).^2) + (Cb./Cr));
+%J = histeq(EyeMapC);
+%figure
+%imshow(EyeMapC);
+%title('EyeMapC');
+
+%Eye map L, erosion and dilate
+SE = strel('disk', 10); %structure element
+o = imdilate(Y, SE); %dilate
+p = imerode(Y, SE); %erosion
+
+EyeMapL = o./(p+1);
+
+EyeMap = EyeMapC.*EyeMapL;
+Dil = imdilate(EyeMap, SE);
+
+%imshow(Dil, [])
+
+test = mouthMap(image);
+imshow(test, [])
+
+
