@@ -10,7 +10,7 @@ crcb = Cr./Cb; %cr is larger than cb in mouth region
 cr2 = Cr.^2;
 
 %mean of cr^2 and cr/cb to get eta
-eta = 0.95*mean(cr2(:))/mean(crcb(:));
+eta = 0.95*(sum(sum(cr2))/(sum(sum(crcb))));
 
 mouthMap = cr2.*((cr2-(eta.*crcb)).^2);
 
