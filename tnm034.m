@@ -14,54 +14,28 @@
 % returnera 0 f?r ok?nda ansikten
 % detektera ansiktet
 % normalisera ansiktet
+clc
 
-% White lighting compensation
+image = imread('DB1/db1_10.jpg');
 
+% Color Correlation with Gray World compensation
+image = colorCorr(image);
 
-image = imread('DB0/db0_4.jpg');
+%Get image to YCbCr
 YCbCr = rgb2ycbcr(image);
-%a = uint8(zeros(size(YCbCr)));
 YCbCr = im2double(YCbCr);
 
 Y = YCbCr(:,:,1); 
 Cb = YCbCr(:,:,2);
 Cr = YCbCr(:,:,3);
 
-%16 - 240
-g = 1./3;
-ccb = Cb.^2;
-ccr = (1 - Cr).^2;
-cbcr = Cb./Cr;
+
+%Creating a EyeMap
+Eyemap = getEyeMap(Y, Cr, Cb);
 
 
-%Inte klar
+%Creating a FaceMask
+FaceMask = facemask(Cr, Cb);
 
-%just_cb = cat(3,a,Cb,a);
-%just_cr = cat(3,a,a,Cr);
-EyeMapC = g*(ccb + ccr + cbcr);
-%EyeMapC = ((Cb.^2) +((255-Cr).^2) + (Cb./Cr))/3;
-%EyeMapC = ((just_cb.^2) +((255-just_cr).^2) + (just_cb./just_cr))/3;
-
-%figure
-%imshow(EyeMapC)
-
-%EyeMapL = ...
-
-%igray = rgb2gray(image);
-%igray = ~igray;
-
-%Structure Element
-SE = strel('disk',10);
-o = imdilate(Y, SE);
-p = imerode(Y, SE) + 1;
-
-EyeMapL = o./p;
-
-%imshow(EyeMapL)
-
-EyeMap = EyeMapC.*EyeMapL;
-Dil = imdilate(EyeMap, SE);
-
-imshow(Dil)
-
+imshow(FaceMask)
 
