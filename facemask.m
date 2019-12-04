@@ -12,17 +12,18 @@ function [faceMask] = facemask(Cr, Cb)
         for j = 1:length(faceCol)
             if Cr(i,j) < 0.6 && Cr(i,j) > 0.51 && Cb(i,j) < 0.56 && Cb(i,j) > 0.4
                 faceMask(i,j) = 1;
+            else
+                faceMask(i,j) = 0;
             end
         end
     end
 
-    %Do morphological operations so remove noise
+    %Morphological operations to remove blobs
     SE = strel('disk',8);
     faceMask = imdilate(faceMask, SE);
     faceMask = imdilate(faceMask, SE);
-    faceMask = imdilate(faceMask, SE);
+    %faceMask = imdilate(faceMask, SE);
     faceMask = imerode(faceMask, SE);
-
 
 end
 
