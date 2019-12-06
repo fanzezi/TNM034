@@ -19,6 +19,12 @@ function eyemap = getEyeMap(Y, Cr, Cb)
 
     eyeMap = eyeMapC.*eyeMapL;
     eyemap = imdilate(eyeMap, SE);
+  
+   
+    
+    %diskSize = 5;
+    %kernel = strel('disk', diskSize);
+    %eyemap = imdilate(eyeMap, kernel);
     
 end
 
