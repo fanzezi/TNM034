@@ -18,5 +18,7 @@ SE = strel('disk', 10);
 mouthMap = imclose(mouthMap, SE);
 %mouthMap = imdilate(mouthMap, SE);
 
+mouthMap = mouthMap.*100;
+
 end
 
