@@ -1,4 +1,4 @@
-function [test_weight] = getEigenface(im, mean_face)
+function [test_weight] = getEigenface(im, mean_face, top_eigenface)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
     
@@ -10,17 +10,10 @@ function [test_weight] = getEigenface(im, mean_face)
     face_diff = images_vec - mean_face; 
     
     % knorr = face_diff
-    % u - mean face
+    % u - mean_face
     % uj - eigenfaces
     
-    % get eigenvector
-    tmp = mtimes(face_diff',face_diff);
-    [eVec, ~] = eig(tmp);
-    
-    % only retain the top eigenfaces 
-    %num_eig = 16;
-    top = mtimes(face_diff,eVec);
-    % project the images into subspace
-    test_weight = mtimes(top',face_diff);
+    % get image weight
+    test_weight = mtimes(top_eigenface', face_diff);
     
 end

@@ -1,4 +1,4 @@
-function [] = createEigenDatabase()
+function [top_eigenface] = createEigenDatabase()
     
     % Load files
     imagefiles = dir('/Users/FannyBanny/Documents/TNM034/DB1/*.jpg');
@@ -38,10 +38,10 @@ function [] = createEigenDatabase()
     [eVec, ~] = eig(C);
 
     % only retain the top eigenfaces 
-    top_eigen_face = mtimes(face_diff,eVec);
+    top_eigenface = mtimes(face_diff,eVec);
 %     top_eigen_face = max(top_eigen_face);
     % project the images into subspace
-    weights = mtimes(top_eigen_face',face_diff);
+    weights = mtimes(top_eigenface',face_diff);
     % Save to database!
-    save('database.mat','eVec', 'mean_face', 'weights')
+    save('database.mat','eVec', 'mean_face', 'weights', 'top_eigenface')
 end

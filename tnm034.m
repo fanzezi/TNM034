@@ -16,8 +16,8 @@
 clc
 clear
 
-%Do not work for picture id: 12  (02 weird crop)
-image = imread('DB1/db1_06.jpg');
+%Do not work for picture id: 12 
+image = imread('DB1/db1_05.jpg');
 
 % Detect face
 [Img] = faceDetection(image);
@@ -27,16 +27,15 @@ createEigenDatabase();
 load('database.mat');
 
 % Get Eigenface weight for Image
-Img_weight = getEigenface(Img, mean_face);
+Img_weight = getEigenface(Img, mean_face, top_eigenface);
 weight_diff = zeros(1,length(weights));
 
  for i=1:length(weights)
      weight_diff(:, i) = norm(Img_weight - weights(:,i));
      %distance(i) = weight_diff;
-
  end   
 
- [min_dist, bestID] = min(weight_diff);
+[min_dist, bestID] = min(weight_diff);
 %bestID
 id = bestID;
 

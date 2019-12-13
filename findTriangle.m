@@ -5,7 +5,6 @@ function [firstEyePos,secEyePos,mouthPos] = findTriangle(eyeMask, mouMask)
     %Make mask into logical and remove border centroids
     eyeMask = logical(eyeMask);
     
-
     %Get eye candidates
     statsEye = regionprops('table', eyeMask, 'centroid', 'MaxFeretProperties');
     eyeCentroids = cat(1,statsEye.Centroid);
