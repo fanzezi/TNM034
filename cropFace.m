@@ -15,6 +15,7 @@ function [faceCrop] = cropFace(im, eyePos1, eyePos2, mouthPos)
     height = ymax-ymin;
     
     faceCrop = imcrop(im, [xmin ymin width height]);
+    faceCrop = imresize(faceCrop, [330, 260]);
     
 
 end

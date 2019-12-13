@@ -31,7 +31,6 @@ function [firstEyePos,secEyePos,mouthPos] = findTriangle(eyeMask, mouMask)
     for i = 1:length(eyesDetected)
        
         if  centAxisEyes(i,1) < 70 && centAxisEyes(i,1) > 30
-            "hej"
             firstEye = centAxisEyes(i,1);
             firstEyePos(1,1) = eyeCentroids(i,1);
             firstEyePos(1,2) = eyeCentroids(i,2);
@@ -46,14 +45,27 @@ function [firstEyePos,secEyePos,mouthPos] = findTriangle(eyeMask, mouMask)
     %Second Eye
     j = 1;
     for i = 1:eyesDetected
-        if centAxisEyes(i,j) ~= firstEye && eyeCentroids(i,2) < lowerInt && eyeCentroids(i,2) > upperInt% && centAxisEyes(i,j) > 30 && centAxisEyes(i,j) < 70
+        if centAxisEyes(i,j) ~= firstEye
+            if  eyeCentroids(i,2) < lowerInt && eyeCentroids(i,2) > upperInt% && centAxisEyes(i,j) > 30 && centAxisEyes(i,j) < 70
+                
+                secondEye = centAxisEyes(i,j);
+                secEyePos(1,1) = eyeCentroids(i,1);
+                secEyePos(1,2) = eyeCentroids(i,2);
 
-            secondEye = centAxisEyes(i,j);
-            secEyePos(1,1) = eyeCentroids(i,1);
-            secEyePos(1,2) = eyeCentroids(i,2);
+                %secEyePos = reshape(secEyePos,[1,2]);
+                break
+            end
+                
+        else
+            if eyeCentroids(i,j) ~= firstEyePos(1,1)
+               
+                %secondEye = centAxisEyes(i,j);
+                secEyePos(1,1) = eyeCentroids(i,1);
+                secEyePos(1,2) = eyeCentroids(i,2);
 
-            %secEyePos = reshape(secEyePos,[1,2]);
-            break
+                %secEyePos = reshape(secEyePos,[1,2]);
+                break
+            end
         end
     end
 
