@@ -2,7 +2,7 @@
 % Project by: Fanny Andersson och Emma Algotsson.
 % OBS!! runs only with matlab 2019b!
 %
-%function id = tnm034(im) 
+function id = tnm034(im) 
 % 
 % im: Image of unknown face, RGB-image in uint8 format in the 
 % range [0,255] 
@@ -13,33 +13,35 @@
 % 
 % Your program code. 
 %%%%%%%%%%%%%%%%%%%%%%%%%%
-clc
-clear
+   
+    % Detect face
+    Img = faceDetection(im);
+    if Img == 0
+        id = 0;
+        return
+    end
 
-image = imread('DB1/db1_01.jpg');
+    % Get Eigenfaces
+    createEigenDatabase();
+    load('database.mat');
 
-% Detect face
-[Img] = faceDetection(image);
+    % Get Eigenface weight for Image
+    Img_weight = getEigenface(Img, meanFace, topEigenface);
+    weight_diff = zeros(1,length(weights));
 
-% Get Eigenfaces
-createEigenDatabase();
-load('database.mat');
+    %Get best fitting ID
+     for i=1:length(weights)
+         weight_diff(:, i) = norm(Img_weight - weights(:,i));
+     end   
 
-% Get Eigenface weight for Image
-Img_weight = getEigenface(Img, mean_face, top_eigenface);
-weight_diff = zeros(1,length(weights));
-
-%Get best fitting ID
- for i=1:length(weights)
-     weight_diff(:, i) = norm(Img_weight - weights(:,i));
- end   
-
-[min_dist, bestID] = min(weight_diff);
-%bestID
-if min_dist < 30
-    id = bestID;
-else
-    id = 0;
+    [min_dist, best_ID] = min(weight_diff);
+    
+    %bestID
+    if min_dist < 30
+        id = best_ID;
+    else
+        id = 0;
+    end
 end
 
 

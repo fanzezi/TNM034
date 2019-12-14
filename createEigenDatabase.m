@@ -1,11 +1,11 @@
-function [top_eigenface] = createEigenDatabase()
+function [topEigenface] = createEigenDatabase()
     
     % Load files
     imagefiles = dir('/Users/FannyBanny/Documents/TNM034/DB1/*.jpg');
-    nr_img = length(imagefiles);
-    all_vec = zeros(85800,16);
+    numImg = length(imagefiles);
+    allVec = zeros(85800,16);
     
-    for i = 1:nr_img
+    for i = 1:numImg
 
         %Load file
         currFileName = imagefiles(i).name;
@@ -16,30 +16,30 @@ function [top_eigenface] = createEigenDatabase()
         %imshow(currImage)
         [m,n] = size(currImage);
         % Flatten images
-        images_vec = double(reshape(currImage, [m*n, 1]));
-        all_vec(:, i) = images_vec;
+        imagesVec = double(reshape(currImage, [m*n, 1]));
+        allVec(:, i) = imagesVec;
         
     end
     % Remove 12 from the database, because failure
     %all_vec(:,12) = [];
    
     % find mean image 
-    mean_face = mean(all_vec, 2);
+    meanFace = mean(allVec, 2);
    
      % Subtract the mean face
     for i = 1:16
-        face_diff(:, i) = all_vec(:, i) - mean_face; 
+        faceDiff(:, i) = allVec(:, i) - meanFace; 
     end
     
     % get eigenvector
-    C = mtimes(face_diff',face_diff); 
+    C = mtimes(faceDiff',faceDiff); 
     [eVec, ~] = eig(C);
 
     % get eigenfaces 
-    top_eigenface = mtimes(face_diff,eVec);
+    topEigenface = mtimes(faceDiff,eVec);
     % project the images into subspace
-    weights = mtimes(top_eigenface',face_diff);
+    weights = mtimes(topEigenface',faceDiff);
     
     % Save to database
-    save('database.mat','eVec', 'mean_face', 'weights', 'top_eigenface')
+    save('database.mat','eVec', 'meanFace', 'weights', 'topEigenface')
 end
