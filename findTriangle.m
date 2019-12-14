@@ -1,68 +1,120 @@
-function [firstEyePos,secEyePos,mouthPos] = findTriangle(mask)
+function [firstEyePos,secEyePos,mouthPos] = findTriangle(eyeMask, mouMask)
 %Find the face triangle, by detecting eyes positions and mouth position.
     %Find Centroids
 
     %Make mask into logical and remove border centroids
-    mask = logical(mask);
+    eyeMask = logical(eyeMask);
     
-
     %Get eye candidates
-    stats = regionprops('table', mask, 'centroid', 'MaxFeretProperties');
-    centroids = cat(1,stats.Centroid);
-    centAxis = cat(1, stats.MaxFeretDiameter);
+    statsEye = regionprops('table', eyeMask, 'centroid', 'MaxFeretProperties');
+    eyeCentroids = cat(1,statsEye.Centroid);
+    centAxisEyes = cat(1, statsEye.MaxFeretDiameter);
     %Find the amount of pontential eyes
-    eyesDetected = size(stats.Centroid,1);
+    eyesDetected = size(statsEye.Centroid,1);
+    
+    %Get mouth candidates
+    statsMouth = regionprops('table', mouMask, 'centroid', 'MaxFeretProperties');
+    mouCentroids = cat(1,statsMouth.Centroid);
+    centAxis = cat(1, statsMouth.MaxFeretDiameter);
+    %Find the amount of pontential mouths
+    mouthCandidates = size(statsMouth.Centroid,1);
+    
+    
+    %[X,Y] = ginput()
+    %imshow(mouMask)
+    %Get size of image
+    [height, width] = size(mouMask);   
+    %[X,Y] = ginput()
+    
+    
+        % Find mouth
+        for i = 1:mouthCandidates
+            % The mouth can only be on the lower part between of the image
+            if mouCentroids(i,2) > (size(eyeMask)/2)     
+                mouthPos(1,1) = mouCentroids(i,1);
+                mouthPos(1,2) = mouCentroids(i,2);
+                break
+            end
+        end 
 
-    %Detect the eyes
-    %First eye
-    j = 1;
-    for i = 1:length(eyesDetected)
-        if centAxis(i,j) > 30 && centAxis(i,j) < 60
 
-            firstEye = centAxis(i,j);
-            firstEyePos(1,1) = centroids(i,1);
-            firstEyePos(1,2) = centroids(i,2);
+        % Detect the eyes
 
+        % Find first eye 
+        if eyesDetected > 2
+            for i = 1:eyesDetected
+                [x,y] = max(eyeCentroids(:,1));
+                if eyeCentroids(i,1) == x
+                    secEyePos(1,1) = eyeCentroids(i,1);
+                    secEyePos(1,2) = eyeCentroids(i,2);
+                end       
+            end  
+            
+            diff_mouth_1 = secEyePos(1,1) - mouthPos(1,1);
+            smallest_diff = 9999;
+            smallest_index = 0;
+            for i = 1:eyesDetected-1
+                
+                
+                diff_mouth_2 = eyeCentroids(i,1) - mouthPos(1,1);
+                if abs(diff_mouth_1) - abs(diff_mouth_2) < smallest_diff
+                    smallest_diff = abs(abs(diff_mouth_1) - abs(diff_mouth_2));
+                    smallest_index = i;
+                end 
+            end
+            firstEyePos(1,1) = eyeCentroids(smallest_index,1);
+            firstEyePos(1,2) = eyeCentroids(smallest_index,2);
+        end    
+
+        if eyesDetected <= 2
+            for i = 1:length(eyesDetected)   
+                if  centAxisEyes(i,1) < 70 && centAxisEyes(i,1) > 30
+                    firstEye = centAxisEyes(i,1);
+                    firstEyePos(1,1) = eyeCentroids(i,1);
+                    firstEyePos(1,2) = eyeCentroids(i,2);
+                    break
+                end
+            end
+            %First eye level
+            intervalVal = firstEyePos(1,2) * 0.1;
+            upperInt = firstEyePos(1,2) - intervalVal;
+            lowerInt = firstEyePos(1,2) + intervalVal;
+
+            %Second Eye
+            j = 1;
+            for i = 1:eyesDetected
+                if centAxisEyes(i,j) ~= firstEye
+                    if  eyeCentroids(i,2) < lowerInt && eyeCentroids(i,2) > upperInt% && centAxisEyes(i,j) > 30 && centAxisEyes(i,j) < 70
+
+                        secondEye = centAxisEyes(i,j);
+                        secEyePos(1,1) = eyeCentroids(i,1);
+                        secEyePos(1,2) = eyeCentroids(i,2);
+
+                        %secEyePos = reshape(secEyePos,[1,2]);
+                        break
+                    end
+
+                else
+                    if eyeCentroids(i,j) ~= firstEyePos(1,1)
+
+                        %secondEye = centAxisEyes(i,j);
+                        secEyePos(1,1) = eyeCentroids(i,1);
+                        secEyePos(1,2) = eyeCentroids(i,2);
+
+                        %secEyePos = reshape(secEyePos,[1,2]);
+                        break
+                    end
+                end
+            end
         end
-    end
 
-    %Second Eye
-    j = 1;
-    for i = 1:eyesDetected
-        if centAxis(i,j) > 30 && centAxis(i,j) < 60 && centAxis(i,j) ~= firstEye
+        %Get eyes in right order
+        if firstEyePos(1,1) > secEyePos(1,1)
+            pre = secEyePos;
+            post = firstEyePos;
 
-            secondEye = centAxis(i,j);
-            secEyePos(1,1) = centroids(i,1);
-            secEyePos(1,2) = centroids(i,2);
-
-            %secEyePos = reshape(secEyePos,[1,2]);
-            break
-        end
-    end
-
-    %Get eyes in right order
-    if firstEyePos(1,1) > secEyePos(1,1)
-        pre = secEyePos;
-        post = firstEyePos;
-
-        firstEyePos = pre;
-        secEyePos = post;
-    end
-
-
-    % Find mouth
-    for i = 1:eyesDetected
-        if centroids(i,1) > firstEyePos(1,1) && centroids(i,1) < secEyePos(1,1) && centroids(i,2) > firstEyePos(1,2)
-
-            mouthPos(1,1) = centroids(i,1);
-            mouthPos(1,2) = centroids(i,2);
-
-            break
-        end
-    end
-
-    %hold on
-    %plot(centroids(:,1),centroids(:,2),'b*')
-    %hold off
+            firstEyePos = pre;
+            secEyePos = post;
+        end     
 end
 
