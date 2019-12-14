@@ -21,27 +21,25 @@ function [top_eigenface] = createEigenDatabase()
         
     end
     % Remove 12 from the database, because failure
-    all_vec(:,12) = [];
+    %all_vec(:,12) = [];
    
     % find mean image 
     mean_face = mean(all_vec, 2);
-    
-        % mean might not work 1/15 * all_vec_sum
-    for i = 1:15
-        % Subtract the mean face
+   
+     % Subtract the mean face
+    for i = 1:16
         face_diff(:, i) = all_vec(:, i) - mean_face; 
     end
-    %imshow(reshape(mean_face, [330,260]))
     
     % get eigenvector
     C = mtimes(face_diff',face_diff); 
     [eVec, ~] = eig(C);
 
-    % only retain the top eigenfaces 
+    % get eigenfaces 
     top_eigenface = mtimes(face_diff,eVec);
-%     top_eigen_face = max(top_eigen_face);
     % project the images into subspace
     weights = mtimes(top_eigenface',face_diff);
-    % Save to database!
+    
+    % Save to database
     save('database.mat','eVec', 'mean_face', 'weights', 'top_eigenface')
 end

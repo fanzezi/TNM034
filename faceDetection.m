@@ -1,6 +1,8 @@
 function [Img] = faceDetection(image)
-%UNTITLED2 Summary of this function goes here
-%   Detailed explanation goes here
+
+% Normalize the image with color correlation
+% Detect the face with finding the face mask, eyes candidates and mouth candidates
+% Returns the rotated and cropped image
 
     % Color Correlation with Gray World compensation
     image = colorCorr(image);
@@ -18,13 +20,10 @@ function [Img] = faceDetection(image)
     mouthMap = getMouthMap(image);
     % Creating a FaceMask
     FaceMask = facemask(Cr, Cb);
-
+    
     % Combinding FaceMask and Eyemap ( get interval )
     Mask = FaceMask.*Eyemap;
-    % Find threshold values
-    %eyeMaxVal = max(max(Eyemap));
-    %mouMaxVal = max(max(mouthMap));
-
+    
     % Create the binary mask
     zeroMask = zeros(size(Eyemap));
     faceCol = zeroMask(1,:);
@@ -32,22 +31,23 @@ function [Img] = faceDetection(image)
     eyeMask = zeros(size(zeroMask));
     moumask = zeros(size(zeroMask));
 
+    
     %Make binary mask
-    eyeMask = Eyemap > 0.45;
+    eyeMask = Eyemap > 0.45; 
     mouMask = mouthMap > 0.12;
-
-    % Morphological operations to remove unnecessary blobs
-    % From EyeMap
+    
+    % Morphological operations to remove unnecessary blobs from EyeMap
     SE = strel('disk',8);
     eyeMask = imdilate(eyeMask, SE);
     eyeMask = imdilate(eyeMask, SE);
     eyeMask = imerode(eyeMask, SE);
     eyeMask = imclearborder(eyeMask);
 
+    % Remove impossible eye candidates
     [height, width] = size(eyeMask);
+    
     statsEye = regionprops(eyeMask, 'centroid',  'PixelIdxList', 'MaxFeretProperties');
     centAxisEyes = cat(1, statsEye.MaxFeretDiameter);
-    %[~, eyeCandidates] = size(statsEye.Centroid);
     centroidseye = cat(1, statsEye.Centroid);
     [numOfEyes, ~] = size(centroidseye);
 
@@ -61,9 +61,9 @@ function [Img] = faceDetection(image)
      end
      
      % -- 
-     
-     
-    % From MouthMap
+  
+    
+    % Morphological operations to remove unnecessary blobs from MouthMap
     statsMouth = regionprops(mouMask, 'centroid');
     centroidsMouth = cat(1, statsMouth.Centroid);
     [numOfMou, ~] = size(centroidsMouth);
@@ -75,17 +75,19 @@ function [Img] = faceDetection(image)
         mouMask = imdilate(mouMask, SE);
         mouMask = imclearborder(mouMask);
     end
-
+    
     % Merge
     mask = mouMask|eyeMask;
-    %mask = Y.*mask;
-
+    
+    
+ 
     % Get Eyes and mouth position
     [eyePos1, eyePos2, mouthPos] = findTriangle(eyeMask, mouMask);
+    
     % Rotate the image
     ImgRot = rotateImage(eyePos1, eyePos2, mask);
     % Crop face
-    Img = cropFace(Y, eyePos1, eyePos2, mouthPos);
+    Img = cropFace(Y, eyePos1, eyePos2, mouthPos);  
     
   
 end

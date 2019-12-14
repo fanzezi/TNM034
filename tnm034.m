@@ -16,8 +16,7 @@
 clc
 clear
 
-%Do not work for picture id: 12 
-image = imread('DB1/db1_05.jpg');
+image = imread('DB1/db1_01.jpg');
 
 % Detect face
 [Img] = faceDetection(image);
@@ -30,14 +29,20 @@ load('database.mat');
 Img_weight = getEigenface(Img, mean_face, top_eigenface);
 weight_diff = zeros(1,length(weights));
 
+%Get best fitting ID
  for i=1:length(weights)
      weight_diff(:, i) = norm(Img_weight - weights(:,i));
-     %distance(i) = weight_diff;
  end   
 
 [min_dist, bestID] = min(weight_diff);
 %bestID
-id = bestID;
+if min_dist < 30
+    id = bestID;
+else
+    id = 0;
+end
+
+
 
 
 
